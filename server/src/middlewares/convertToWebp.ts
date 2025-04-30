@@ -6,6 +6,7 @@ import { parse, join, dirname } from 'path';
 import { Files, File } from 'formidable';
 
 const DEFAULT_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
+let autoOrientation = false;
 
 export default ({ config }, { strapi }: { strapi: Core.Service }) => {
   const IMAGE_TYPES = config('mimeTypes', DEFAULT_IMAGE_TYPES);
@@ -20,6 +21,14 @@ export default ({ config }, { strapi }: { strapi: Core.Service }) => {
       ctx.request.body.fileInfo;
 
     if (isUpload) {
+      const pluginStore = strapi.store({
+        environment: strapi.config.environment,
+        type: 'plugin',
+        name: 'upload',
+      });
+      const settings = (await pluginStore.get({ key: 'settings' })) || {};
+      autoOrientation = settings.autoOrientation === true;
+
       const files = ctx.request.files as Files;
 
       for (const key in files) {
@@ -57,7 +66,12 @@ const processFile = async (
     ctx.request.body.fileInfo = JSON.stringify(fileInfo);
 
     try {
-      const sharpResult = await sharp(filePath).webp(SHARP_OPTIONS).toFile(webpFilePath);
+      let pipeline = sharp(filePath);
+
+      if (autoOrientation) pipeline = pipeline.rotate();
+      
+      pipeline = pipeline.webp(SHARP_OPTIONS);
+      const sharpResult = await pipeline.toFile(webpFilePath);
       await fs.unlink(filePath);
 
       file.size = sharpResult.size;
