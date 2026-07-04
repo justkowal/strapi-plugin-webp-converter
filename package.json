@@ -48,10 +48,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/dnlnwk/strapi-plugin-webp-converter.git"
+    "url": "https://github.com/justkowal/strapi-plugin-webp-converter.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
   },
   "homepage": "https://dnlnwk.de/",
-  "name": "strapi-plugin-webp-converter",
+  "name": "@justkowal/strapi-plugin-webp-converter",
   "description": "A Strapi plugin that converts images to WebP format.",
   "license": "MIT",
   "author": "Daniel Nowak <daniel@dnlnwk.de>",
